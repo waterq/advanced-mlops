@@ -49,7 +49,19 @@ with DAG(
         autocommit=True,
     )
 
-    data_preprocessing = EmptyOperator(task_id="data_preprocessing")
+    # data_preprocessing = EmptyOperator(task_id="data_preprocessing")
+    data_preprocessing = BashOperator(
+        task_id="data_preprocessing", 
+        bash_command=f"cd {airflow_dags_path}/pipelines/continuous_training/docker &&"
+        "docker compose up --build && docker compose down",
+        env={
+            "PYTHON_FILE": "/home/codespace/training/trainer.py",
+            "MODEL_NAME": "credit_score_classification",
+            "BASE_DT": "{{ ds }}",
+        }, 
+        append_env=True,
+        retries=1,
+    )
 
     training = EmptyOperator(task_id="model_training")
 
