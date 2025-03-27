@@ -4,7 +4,7 @@ from datetime import datetime
 import pendulum
 from airflow import DAG
 from airflow.models import Variable
-from airflow.operators.empty import EmptyOperator
+# from airflow.operators.empty import EmptyOperator
 from airflow.operators.bash import BashOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 
@@ -55,7 +55,7 @@ with DAG(
         bash_command=f"cd {airflow_dags_path}/pipelines/continuous_training/docker &&"
         "docker compose up --build && docker compose down",
         env={
-            "PYTHON_FILE": "/home/codespace/training/trainer.py",
+            "PYTHON_FILE": "/home/codespace/data_preprocessing/preprocessor.py",
             "MODEL_NAME": "credit_score_classification",
             "BASE_DT": "{{ ds }}",
         }, 
@@ -63,6 +63,19 @@ with DAG(
         retries=1,
     )
 
-    training = EmptyOperator(task_id="model_training")
+    # training = EmptyOperator(task_id="model_training")
+
+    training = BashOperator(
+        task_id="model_training", 
+        bash_command=f"cd {airflow_dags_path}/pipelines/continuous_training/docker &&"
+        "docker compose up --build && docker compose down",
+        env={
+            "PYTHON_FILE": "/home/codespace/training/trainer.py",
+            "MODEL_NAME": "credit_score_classification",
+            "BASE_DT": "{{ ds }}",
+        }, 
+        append_env=True,
+        retries=1,
+    )
 
     data_extract >> data_preprocessing >> training
