@@ -8,6 +8,7 @@ ARG USER_HOME=/home/codespace
 ARG UTIL_PATH=
 ARG PREPROCESSING_PATH=
 ARG REQUIREMENTS_PATH=
+ARG TRAINING_PATH=pipelines/continuous_training/training
 
 RUN groupadd --gid 1000 codespace \
     && useradd --uid 1000 --gid codespace --shell /bin/bash --create-home codespace
@@ -17,6 +18,7 @@ COPY --chown=codespace:codespace ${PREPROCESSING_PATH}/preprocessor.py \
     ${USER_HOME}/data_preprocessing/
 COPY --chown=codespace:codespace ${REQUIREMENTS_PATH}/requirements.txt \
     ${USER_HOME}/
+COPY --chown=mlops:mlops ${TRAINING_PATH}/trainer.py ${USER_HOME}/training/
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
